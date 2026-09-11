@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: dexmart-warehouse
+    environment:
+      POSTGRES_USER: dexmart
+      POSTGRES_PASSWORD: dexmart
+      POSTGRES_DB: warehouse
+    ports:
+      - "5432:5432"
+    volumes:
+      - dexmart-pg:/var/lib/postgresql/data
+      - ./sql/init.sql:/docker-entrypoint-initdb.d/001_init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dexmart -d warehouse"]
+      interval: 2s
+      timeout: 5s
+      retries: 20
+
+volumes:
+  dexmart-pg:
