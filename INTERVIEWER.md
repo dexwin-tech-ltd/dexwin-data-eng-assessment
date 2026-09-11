@@ -120,7 +120,11 @@ After one successful `make pipeline` on a clean volume:
 - `ORD-1005` count = 2; `ORD-1004` count = 2
 - `ORD-1006` / `ORD-1007` amount = 0
 - `daily_gmv`: 0 rows
-- Second run: `refresh_daily_gmv` may insert rows from the *first* load, then the job dies on `dim_customers` PK. Candidates often notice GMV “suddenly appearing” after a failed retry.
+- Second run (load order is mart → facts → dims):
+  1. `daily_gmv` is built from the *first* load (usually one row: 10 Mar)
+  2. Another 14 facts are appended (**28** rows) — the failed retry still doubles revenue
+  3. Job then dies on `dim_customers` PK
+- Third run often dies immediately on the `daily_gmv` PK, leaving the doubled facts in place.
 
 ## Target numbers (if they finish FX + TZ + dedupe)
 
